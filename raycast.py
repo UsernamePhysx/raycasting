@@ -10,7 +10,7 @@ FPS = 100  # Frames per second
 TILE = 100  # Size of the map tile
 
 # Mini-map scale
-MAP_SCALE = 100
+MAP_SCALE = 5
 MAP_TILE = TILE // MAP_SCALE
 
 # Field of view settings
@@ -35,13 +35,13 @@ BLACK = (0, 0, 0)
 text_map = [
     'XXXXXXXXXXXX',
     'X..........X',
-    'X....X..XX..X',
+    'X...X..XX..X',
     'X..X.......X',
     'X..X..XX...X',
     'X.X....X...X',
     'X.X..X..XX.X',
     'X....X.....X',
-    'XXXXXXXXXXXXX'
+    'XXXXXXXXXXXX'
 ]
 
 # Create a set of coordinates for walls in the world map
@@ -147,6 +147,22 @@ def ray_casting(sc, player_pos, player_angle):
         pygame.draw.rect(sc, color, (ray * SCALE, HALF_HEIGHT - proj_height // 2, SCALE, proj_height))
         cur_angle += DELTA_ANGLE
 
+# Draw the mini-map
+def draw_minimap(sc, player):
+    # Draw map tiles
+    for x, y in world_map:
+        pygame.draw.rect(sc, (255, 255, 255), (x // MAP_SCALE, y // MAP_SCALE, MAP_TILE, MAP_TILE))
+    
+    # Draw player on the mini-map
+    pygame.draw.circle(sc, (255, 0, 0), (int(player.x // MAP_SCALE), int(player.y // MAP_SCALE)), 5)
+    
+    # Draw player's view direction
+    angle_x = player.x + 50 * math.cos(player.angle)
+    angle_y = player.y + 50 * math.sin(player.angle)
+    pygame.draw.line(sc, (255, 0, 0), 
+                     (int(player.x // MAP_SCALE), int(player.y // MAP_SCALE)), 
+                     (int(angle_x // MAP_SCALE), int(angle_y // MAP_SCALE)), 2)
+
 # Initialize Pygame
 pygame.init()
 sc = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -166,6 +182,9 @@ while True:
 
     drawing.background()
     drawing.world(player.pos, player.angle)
+
+    # Draw the mini-map
+    draw_minimap(sc, player)
 
     pygame.display.flip()
     clock.tick(FPS)
